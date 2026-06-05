@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import api from "@/lib/api";
 import { CaseFilters, PaginatedResponse, CaseListItem, Case } from "@/types";
 
@@ -33,9 +34,10 @@ export function useCase(id: string) {
   return useQuery({
     queryKey: ["cases", id],
     queryFn: async () => {
-      const response = await api.get<{ success: boolean; data: Case }>(
-        `/cases/${id}`,
-      );
+      const response = await api.get<{
+        success: boolean;
+        data: Case;
+      }>(`/cases/${id}`);
       return response.data.data;
     },
     enabled: !!id,
@@ -53,9 +55,12 @@ export function useUpdateCaseStatus() {
       return response.data.data;
     },
     onSuccess: (_, variables) => {
-      // Invalidate both the list and the specific case
       queryClient.invalidateQueries({ queryKey: ["cases"] });
       queryClient.invalidateQueries({ queryKey: ["cases", variables.id] });
+      toast.success("Case status updated successfully");
+    },
+    onError: () => {
+      toast.error("Failed to update case status. Please try again.");
     },
   });
 }
@@ -72,6 +77,10 @@ export function useReAnalyzeCase() {
     },
     onSuccess: (_, caseId) => {
       queryClient.invalidateQueries({ queryKey: ["cases", caseId] });
+      toast.success("AI analysis regenerated successfully");
+    },
+    onError: () => {
+      toast.error("Failed to regenerate analysis. Please try again.");
     },
   });
 }
