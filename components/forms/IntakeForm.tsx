@@ -1,33 +1,34 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { CheckCircle, Loader2, Scale } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { CheckCircle, Loader2, Scale } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import api from "@/lib/api";
-import { getErrorMessage } from "@/lib/utils";
+} from '@/components/ui/card';
+import api from '@/lib/api';
+import { getErrorMessage } from '@/lib/utils';
+import Link from 'next/link';
 
 // ── Validation schema ──────────────────────────────────────
 
 const intakeSchema = z.object({
   clientName: z
     .string()
-    .min(2, "Full name must be at least 2 characters")
-    .max(100, "Full name cannot exceed 100 characters"),
-  email: z.string().email("Please enter a valid email address"),
+    .min(2, 'Full name must be at least 2 characters')
+    .max(100, 'Full name cannot exceed 100 characters'),
+  email: z.string().email('Please enter a valid email address'),
   phone: z
     .string()
     .optional()
@@ -35,12 +36,12 @@ const intakeSchema = z.object({
       (val) =>
         !val ||
         /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/.test(val),
-      "Please enter a valid phone number",
+      'Please enter a valid phone number',
     ),
   description: z
     .string()
-    .min(50, "Please provide more detail (minimum 50 characters)")
-    .max(5000, "Description cannot exceed 5000 characters"),
+    .min(50, 'Please provide more detail (minimum 50 characters)')
+    .max(5000, 'Description cannot exceed 5000 characters'),
 });
 
 type IntakeFormData = z.infer<typeof intakeSchema>;
@@ -60,13 +61,13 @@ export function IntakeForm() {
     resolver: zodResolver(intakeSchema),
   });
 
-  const descriptionLength = watch("description")?.length ?? 0;
+  const descriptionLength = watch('description')?.length ?? 0;
 
   const onSubmit = async (data: IntakeFormData) => {
     setSubmitError(null);
 
     try {
-      await api.post("/cases", data);
+      await api.post('/cases', data);
       setIsSubmitted(true);
     } catch (error) {
       setSubmitError(getErrorMessage(error));
@@ -114,11 +115,21 @@ export function IntakeForm() {
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
       {/* Header */}
       <header className="bg-white border-b">
-        <div className="mx-auto max-w-3xl px-4 py-4 flex items-center gap-2">
-          <div className="rounded-lg bg-slate-900 p-1.5">
-            <Scale className="h-5 w-5 text-white" />
+        <div className="mx-auto max-w-3xl px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="rounded-lg bg-slate-900 p-1.5">
+              <Scale className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-lg font-bold text-slate-900">
+              LegalFlow AI
+            </span>
           </div>
-          <span className="text-lg font-bold text-slate-900">LegalFlow AI</span>
+          <Link
+            href="/login"
+            className="text-sm text-slate-600 hover:text-slate-900 font-medium"
+          >
+            Staff Login
+          </Link>
         </div>
       </header>
 
@@ -151,8 +162,8 @@ export function IntakeForm() {
                 <Input
                   id="clientName"
                   placeholder="John Smith"
-                  {...register("clientName")}
-                  className={errors.clientName ? "border-red-300" : ""}
+                  {...register('clientName')}
+                  className={errors.clientName ? 'border-red-300' : ''}
                 />
                 {errors.clientName && (
                   <p className="text-xs text-red-600">
@@ -171,8 +182,8 @@ export function IntakeForm() {
                     id="email"
                     type="email"
                     placeholder="john@example.com"
-                    {...register("email")}
-                    className={errors.email ? "border-red-300" : ""}
+                    {...register('email')}
+                    className={errors.email ? 'border-red-300' : ''}
                   />
                   {errors.email && (
                     <p className="text-xs text-red-600">
@@ -183,15 +194,15 @@ export function IntakeForm() {
 
                 <div className="space-y-1.5">
                   <Label htmlFor="phone">
-                    Phone Number{" "}
+                    Phone Number{' '}
                     <span className="text-gray-400 text-xs">(optional)</span>
                   </Label>
                   <Input
                     id="phone"
                     type="tel"
                     placeholder="+1 (555) 000-0000"
-                    {...register("phone")}
-                    className={errors.phone ? "border-red-300" : ""}
+                    {...register('phone')}
+                    className={errors.phone ? 'border-red-300' : ''}
                   />
                   {errors.phone && (
                     <p className="text-xs text-red-600">
@@ -204,15 +215,15 @@ export function IntakeForm() {
               {/* Case Description */}
               <div className="space-y-1.5">
                 <Label htmlFor="description">
-                  Describe Your Legal Situation{" "}
+                  Describe Your Legal Situation{' '}
                   <span className="text-red-500">*</span>
                 </Label>
                 <Textarea
                   id="description"
                   placeholder="Please describe what happened, when it occurred, and what outcome you are looking for. The more detail you provide, the better we can evaluate your case."
                   rows={6}
-                  {...register("description")}
-                  className={errors.description ? "border-red-300" : ""}
+                  {...register('description')}
+                  className={errors.description ? 'border-red-300' : ''}
                 />
                 <div className="flex justify-between items-center">
                   {errors.description ? (
@@ -227,8 +238,8 @@ export function IntakeForm() {
                   <p
                     className={`text-xs ${
                       descriptionLength < 50
-                        ? "text-gray-400"
-                        : "text-green-600"
+                        ? 'text-gray-400'
+                        : 'text-green-600'
                     }`}
                   >
                     {descriptionLength}/5000
@@ -255,7 +266,7 @@ export function IntakeForm() {
                     Submitting your case...
                   </>
                 ) : (
-                  "Submit Case for Review"
+                  'Submit Case for Review'
                 )}
               </Button>
 
